@@ -1,5 +1,5 @@
 import numpy as np
-from helper import data_import
+from helper import data_import_universal
 
 # Definition des Algorithmus
 
@@ -35,7 +35,7 @@ class KNearestNeighbor:
         return y_pred
 
 # Daten importieren:
-data = data_import("data/iris_data.csv", int(input("test size: ")))
+data = data_import_universal("data/diabetes_data.csv", int(input("test size: ")))
 X_train, Y_train, X_test, Y_test = data[:4]
 
 # Modell erstellen und trainieren
@@ -48,13 +48,17 @@ y_pred = knn.predict(X_test)
 
 # Vorhersagen auswerten
 def evaluate():
-    error_count = 0
+    errors = 0
+    success = 0
     for i in range(len(Y_test)):
         if y_pred[i] != Y_test[i]:
             print(f"Error: {y_pred[i]} ({Y_test[i]})")
-            error_count += 1
+            errors += 1
         else:
             print(f"Result: {y_pred[i]} ({Y_test[i]})")
-    print(f"Errors: {error_count}")
-
+            success += 1
+    accuracy = 1 - errors / (errors + success)
+    print(f"Errors: {errors}")
+    print(f"Accuracy: {accuracy}")
+    
 evaluate()
