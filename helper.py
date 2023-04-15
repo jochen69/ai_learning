@@ -43,3 +43,39 @@ def data_import(file_path, test_size):
                 Y_train.append(y)
     print(f"data successfully imported. test size: {test_size} %; test rows: {num_test_rows}")
     return X_train, Y_train, X_test, Y_test
+
+def data_import_universal(file_path, test_size):
+    
+    # create lists to store values
+    X_train, Y_train, X_test, Y_test = [], [], [], []
+
+    # read csv file
+    with open(file_path, 'r') as csv_file:
+
+        reader = csv.reader(csv_file)
+        header = next(reader) # skip header row (titles and stuff)
+        data = list(reader)
+        random.shuffle(data)
+
+        # Calculate the number of rows for test data based on the test_size percentage
+        num_test_rows = int(len(data) * test_size/100)
+        num_columns = len(header) - 1 # get num of columns of csv and substract 1 to fit it to list style
+
+        for row in data:
+            # Append numerical features (columns 0 to 3) to either X_train or X_test list
+            x = list(map(float, row[:num_columns]))
+            if len(X_test) < num_test_rows:
+                X_test.append(x)
+            else:
+                X_train.append(x)
+            
+            # Append flower name (last column) to either Y_train or Y_test list
+            y = row[num_columns]
+            if len(Y_test) < num_test_rows:
+                Y_test.append(y)
+            else:
+                Y_train.append(y)     
+        print(f"data successfully imported. test size: {test_size} %; test rows: {num_test_rows}")
+        return X_train, Y_train, X_test, Y_test
+
+#data = data_import_universal("data/diabetes_data.csv", 10)   
