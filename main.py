@@ -1,64 +1,38 @@
 import numpy as np
-from helper import data_import_universal
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.neural_network import MLPClassifier
+from sklearn.metrics import accuracy_score
 
-# Definition des Algorithmus
+# Step 1: Load and preprocess the Iris flower dataset
+iris = load_iris()
+X = iris.data
+y = iris.target
 
-class KNearestNeighbor:
-    def __init__(self, k=3):
-        self.k = k
-        self.X_train = None
-        self.Y_train = None
-        print(f"initializing with K={k} neighbours:")
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-    def distance(self, x1, x2):
-        x1 = np.array(x1)
-        x2 = np.array(x2)
-        distance = np.linalg.norm(x1 - x2)
-        return distance
-    
-    def fit(self, X_train, Y_train):
-        self.X_train = X_train
-        self.Y_train = Y_train
-        print(f"algorithm trained")
+# Standardize the input data
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
 
-    def predict(self, X_test):
-        y_pred = []
-        for x_test in X_test:
-            dist = []
-            for x_train in self.X_train:
-                dist.append(self.distance(x_test, x_train))
-            
-            k_nearest_indices = sorted(range(len(dist)), key=lambda i: dist[i])[:self.k]
-            k_nearest_labels = [self.Y_train[i] for i in k_nearest_indices]
-            predicted_label = max(k_nearest_labels, key=k_nearest_labels.count)
-            y_pred.append(predicted_label)
-        return y_pred
+# Step 2: Initialize the neural network classifier
+clf = MLPClassifier(hidden_layer_sizes=(8,), activation='relu', solver='adam', max_iter=1000, random_state=42)
 
-# Daten importieren:
-data = data_import_universal("data/diabetes_data.csv", int(input("test size: ")))
-X_train, Y_train, X_test, Y_test = data[:4]
+# Step 3: Train the neural network
+clf.fit(X_train, y_train)
 
-# Modell erstellen und trainieren
+# Step 4: Make predictions
+y_pred_train = clf.predict(X_train)
+y_pred_test = clf.predict(X_test)
 
-knn = KNearestNeighbor(k=int(input("k: ")))
-knn.fit(X_train, Y_train)
+# Step 5: Compute accuracy
+train_accuracy = accuracy_score(y_train, y_pred_train)
+test_accuracy = accuracy_score(y_test, y_pred_test)
 
-# Vorhersagen für Testdaten machen
-y_pred = knn.predict(X_test)
-
-# Vorhersagen auswerten
-def evaluate():
-    errors = 0
-    success = 0
-    for i in range(len(Y_test)):
-        if y_pred[i] != Y_test[i]:
-            print(f"Error: {y_pred[i]} ({Y_test[i]})")
-            errors += 1
-        else:
-            print(f"Result: {y_pred[i]} ({Y_test[i]})")
-            success += 1
-    accuracy = 1 - errors / (errors + success)
-    print(f"Errors: {errors}")
-    print(f"Accuracy: {accuracy}")
-    
-evaluate()
+# Step 6: Print the accuracy
+print(y_pred_test)
+print('Training accuracy:', train_accuracy)
+print('Testing accuracy:', test_accuracy)
